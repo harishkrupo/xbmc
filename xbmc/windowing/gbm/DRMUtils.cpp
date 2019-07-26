@@ -308,6 +308,16 @@ bool CDRMUtils::FindPreferredMode()
   for(auto i = 0, area = 0; i < m_connector->connector->count_modes; i++)
   {
     drmModeModeInfo *current_mode = &m_connector->connector->modes[i];
+    if (current_mode->vrefresh > 45.0) {
+	    CLog::Log(LOGDEBUG,
+		      "CDRMUtils::%s - found 60 HZ mode, continuing: %dx%d%s @ %d Hz",
+		      __FUNCTION__,
+		      current_mode->hdisplay,
+		      current_mode->vdisplay,
+		      current_mode->flags & DRM_MODE_FLAG_INTERLACE ? "i" : "",
+		      current_mode->vrefresh);
+	    continue;
+    }
 
     if(current_mode->type & DRM_MODE_TYPE_PREFERRED)
     {
@@ -785,6 +795,16 @@ std::vector<RESOLUTION_INFO> CDRMUtils::GetModes()
   {
     RESOLUTION_INFO res = GetResolutionInfo(&m_connector->connector->modes[i]);
     res.strId = std::to_string(i);
+    if (res.fRefreshRate > 45.0) {
+	    CLog::Log(LOGDEBUG,
+		      "CDRMUtils::%s - found 60 HZ mode, skipping: %dx%d @ %lf Hz",
+		      __FUNCTION__,
+		      res.iScreenWidth,
+		      res.iScreenHeight,
+		      res.fRefreshRate);
+	    continue;
+
+    }
     resolutions.push_back(res);
   }
 
